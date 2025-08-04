@@ -20,6 +20,9 @@
  * SOFTWARE.
  */
 
+import '../extensions/extensions.dart';
+import '../models/data_models/chat_view_list_item.dart';
+
 /// {@template chatview_utils.enumeration.MessageType}
 /// Defines the various message types in ChatView.
 /// - [image]: An image message.
@@ -179,4 +182,197 @@ enum ChatPaginationDirection {
   bool get isPrevious => this == previous;
 
   bool get isNext => this == next;
+}
+
+/// An enumeration of user status.
+enum UserActiveStatus {
+  /// user is active
+  online,
+
+  /// user is inactive
+  offline;
+
+  /// is user inactive
+  bool get isOnline => this == online;
+
+  /// is user active
+  bool get isOffline => this == offline;
+}
+
+/// Extension methods for [UserActiveStatus], providing utilities
+/// for parsing and handling user status values.
+extension UserActiveStatusExtension on UserActiveStatus {
+  /// Parses a string value and returns the corresponding [UserActiveStatus].
+  ///
+  /// - If the [value] is `null` or empty,
+  /// it defaults to [UserActiveStatus.offline].
+  /// - If the [value] matches `online`
+  /// (case-insensitive), it returns [UserActiveStatus.online].
+  /// - For all other cases, it defaults to [UserActiveStatus.offline].
+  ///
+  /// Example:
+  /// ```dart
+  /// final status = UserStatus.parse('online');
+  /// print(status); // Output: UserStatus.online
+  /// ```
+  ///
+  /// [value]: The input string to parse.
+  /// Returns the corresponding [UserActiveStatus].
+  static UserActiveStatus parse(String? value) {
+    final safeValue = value?.trim().toLowerCase() ?? '';
+    if (safeValue.isEmpty) return UserActiveStatus.offline;
+    if (safeValue == UserActiveStatus.online.name) {
+      return UserActiveStatus.online;
+    } else {
+      return UserActiveStatus.offline;
+    }
+  }
+}
+
+/// An enumeration representing the pin status of a chat.
+enum PinStatus {
+  /// Indicates that the chat is pinned.
+  pinned,
+
+  /// Indicates that the chat is not pinned.
+  unpinned;
+
+  /// Returns `true` if the chat is pinned.
+  bool get isPinned => this == pinned;
+
+  /// Returns `true` if the chat is not pinned.
+  bool get isUnpinned => this == unpinned;
+}
+
+/// Provides utility methods for [PinStatusExtension].
+extension PinStatusExtension on PinStatus {
+  /// Parses a string value and returns the corresponding [PinStatus].
+  ///
+  /// **Parameters:**
+  /// - (required): [value] The input string to parse.
+  ///
+  /// Returns the corresponding [PinStatus] if the value matches.
+  /// Defaults to [PinStatus.unpinned] if the input is empty or doesn't match
+  /// any status.
+  static PinStatus parse(String? value) {
+    final type = value?.trim().toLowerCase() ?? '';
+    if (type.isEmpty) return PinStatus.unpinned;
+    if (type == PinStatus.pinned.name.toLowerCase()) {
+      return PinStatus.pinned;
+    } else {
+      return PinStatus.unpinned;
+    }
+  }
+}
+
+/// An enumeration representing the mute status of a chat.
+enum MuteStatus {
+  /// Indicates that the chat is muted.
+  muted,
+
+  /// Indicates that the chat is not muted.
+  unmuted;
+
+  /// Returns `true` if the chat is muted.
+  bool get isMuted => this == muted;
+
+  /// Returns `true` if the chat is not muted.
+  bool get isUnmuted => this == unmuted;
+}
+
+/// Provides utility methods for [MuteStatusExtension].
+extension MuteStatusExtension on MuteStatus {
+  /// Parses a string value and returns the corresponding [MuteStatus].
+  ///
+  /// **Parameters:**
+  /// - (required): [value] The input string to parse.
+  ///
+  /// Returns the corresponding [MuteStatus] if the value matches.
+  /// Defaults to [MuteStatus.unmuted] if the input is empty or doesn't match
+  /// any status.
+  static MuteStatus parse(String? value) {
+    final type = value?.trim().toLowerCase() ?? '';
+    if (type.isEmpty) return MuteStatus.unmuted;
+    if (type == MuteStatus.muted.name.toLowerCase()) {
+      return MuteStatus.muted;
+    } else {
+      return MuteStatus.unmuted;
+    }
+  }
+}
+
+/// An enumeration representing different types of chat rooms.
+enum ChatRoomType {
+  /// A one-on-one private chat between two users.
+  oneToOne,
+
+  /// A group chat involving multiple users.
+  group;
+
+  /// Returns `true` if the chat room type is [oneToOne].
+  bool get isOneToOne => this == oneToOne;
+
+  /// Returns `true` if the chat room type is [group].
+  bool get isGroup => this == group;
+}
+
+/// Provides utility methods for [ChatRoomTypeExtension].
+extension ChatRoomTypeExtension on ChatRoomType {
+  /// Parses a string value and returns the corresponding [ChatRoomType].
+  ///
+  /// Returns the corresponding [ChatRoomType] if the value matches,
+  /// or `null` if it doesn't.
+  static ChatRoomType? tryParse(String? value) {
+    final safeValue = value?.trim().toLowerCase() ?? '';
+    if (safeValue == ChatRoomType.oneToOne.name.toLowerCase()) {
+      return ChatRoomType.oneToOne;
+    } else if (safeValue == ChatRoomType.group.name.toLowerCase()) {
+      return ChatRoomType.group;
+    } else {
+      return null;
+    }
+  }
+}
+
+/// Enum for different chat list sorting options (for internal use only)
+enum ChatViewListSortBy {
+  /// No sorting applied.
+  none,
+
+  /// Pin chats first (sorted by pin time), then unpinned by message date/time
+  pinFirstByPinTime;
+
+  int sort(ChatViewListItem chat1, ChatViewListItem chat2) {
+    switch (this) {
+      case none:
+        return 0;
+      case pinFirstByPinTime:
+        final isChatAPinned = chat1.settings.pinStatus.isPinned;
+        final isChatBPinned = chat2.settings.pinStatus.isPinned;
+
+        // 1. Pinned chats first
+        if (isChatAPinned && !isChatBPinned) return -1;
+        if (!isChatAPinned && isChatBPinned) return 1;
+
+        // 2. Sort pinned chats by pinTime descending (latest first)
+        if (isChatAPinned && isChatBPinned) {
+          final pinTimeA = chat1.settings.pinTime;
+          final pinTimeB = chat2.settings.pinTime;
+          if (pinTimeA != null && pinTimeB != null) {
+            return pinTimeB.compareTo(pinTimeA);
+          }
+          // If one has null pinTime, treat it as older
+          if (pinTimeA == null && pinTimeB != null) return 1;
+          if (pinTimeA != null && pinTimeB == null) return -1;
+        }
+
+        // 3. Sort unpinned chats by message date/time (newest first)
+        if (!isChatAPinned && !isChatBPinned) {
+          final chatBCreateAt = chat2.lastMessage?.createdAt;
+          return chatBCreateAt.compareWith(chat1.lastMessage?.createdAt);
+        }
+
+        return 0;
+    }
+  }
 }

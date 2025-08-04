@@ -183,7 +183,7 @@ base class ChatController {
     required Message newMessage,
   }) {
     final message = initialMessageList.firstWhereOrNull(
-          (message) => message.id == messageId,
+      (message) => message.id == messageId,
     );
     if (message == null) throw Exception('Message Not Found!');
     final indexOfMessage = initialMessageList.indexOf(message);

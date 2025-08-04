@@ -21,7 +21,6 @@
  */
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 import '../../extensions/extensions.dart';
 import '../../values/enumeration.dart';
@@ -85,9 +84,6 @@ class Message {
 
   /// Unique identifier for the message.
   final String id;
-
-  /// Key for accessing the widget's render box.
-  late final GlobalKey key = GlobalKey(debugLabel: id);
 
   /// The message content, which can be text, an image path,
   /// or an audio file path.
@@ -169,7 +165,6 @@ class Message {
 
   Message copyWith({
     String? id,
-    GlobalKey? key,
     String? message,
     DateTime? createdAt,
     String? sentBy,
@@ -208,7 +203,6 @@ class Message {
 
     return other is Message &&
         other.id == id &&
-        other.key == key &&
         other.message == message &&
         other.createdAt == createdAt &&
         other.sentBy == sentBy &&
@@ -224,7 +218,6 @@ class Message {
   @override
   int get hashCode => Object.hashAllUnordered([
         id,
-        key,
         message,
         createdAt,
         sentBy,

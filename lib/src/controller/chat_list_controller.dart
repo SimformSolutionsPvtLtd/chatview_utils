@@ -76,6 +76,12 @@ base class ChatViewListController {
   /// So the order of in UI and from this will be different.
   List<ChatViewListItem> get chatList => _chatListMap.values.toList();
 
+  /// Provides map of all chats in the chat list.
+  ///
+  /// **Note**: If a search is active, this will return the full chat map,
+  /// not the search results. And this map will be unsorted.
+  Map<String, ChatViewListItem> get chatListMap => _chatListMap;
+
   bool get isSearching => _searchResultMap != null;
 
   /// Stream controller to manage the chat list stream.

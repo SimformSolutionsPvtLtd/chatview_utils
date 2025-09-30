@@ -313,7 +313,10 @@ class AutoAnimateSliverListController<T> {
   }
 
   /// Do not use this method directly
-  void updateItems(List<T> updatedItems) => _items = updatedItems;
+  void updateItems(List<T> updatedItems) {
+    _items = updatedItems;
+    _currentItems = List.from(_items);
+  }
 
   /// Do not use this method directly
   void updateItemsWithAnimation({
@@ -493,10 +496,12 @@ class AutoAnimateSliverListController<T> {
     _itemStates.clear();
     _itemKeys.clear();
     _removingItems.clear();
+    _items.clear();
     _currentItems = List<T>.from(_items);
     _isNewItemAddedAtTop = false;
     _newItemHeight = 0.0;
     _isAddingItem = false;
     _isRemovingItem = false;
+    _tickerProvider = null;
   }
 }

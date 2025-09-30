@@ -28,10 +28,10 @@ class AutoAnimateSliverListController<T> {
     required AutoAnimateItemExtractor<T> itemKeyExtractor,
     Duration animationDuration = const Duration(milliseconds: 400),
     bool enableMoveAnimation = true,
-  }) : _enableMoveAnimation = enableMoveAnimation,
-       _items = items,
-       _itemKeyExtractor = itemKeyExtractor,
-       _animationDuration = animationDuration;
+  })  : _enableMoveAnimation = enableMoveAnimation,
+        _items = items,
+        _itemKeyExtractor = itemKeyExtractor,
+        _animationDuration = animationDuration;
 
   final AutoAnimateItemExtractor<T> _itemKeyExtractor;
   final Duration _animationDuration;
@@ -111,8 +111,8 @@ class AutoAnimateSliverListController<T> {
     if (_isNewItemAddedAtTop && _currentItems.isNotEmpty) {
       // Estimate new item height based on existing items
       final firstOldKey = _itemKeyExtractor(_currentItems[0]);
-      final renderBox = _itemKeys[firstOldKey]?.currentContext
-          ?.findRenderObject();
+      final renderBox =
+          _itemKeys[firstOldKey]?.currentContext?.findRenderObject();
       if (renderBox is RenderBox && renderBox.hasSize) {
         _newItemHeight = renderBox.size.height;
       } else {
@@ -183,8 +183,8 @@ class AutoAnimateSliverListController<T> {
   /// Removes an item by its key with animation
   void removeItem(String key, {bool shouldAnimate = true}) {
     final item = _currentItems.cast<T?>().firstWhereOrNull(
-      (item) => item != null && _itemKeyExtractor(item) == key,
-    );
+          (item) => item != null && _itemKeyExtractor(item) == key,
+        );
     if (item == null) return;
 
     _onRemoveItem(item, shouldAnimate: shouldAnimate);
@@ -269,8 +269,7 @@ class AutoAnimateSliverListController<T> {
     required TickerProvider tickerProvider,
     AnimationController? moveController,
   }) {
-    final controller =
-        moveController ??
+    final controller = moveController ??
         AnimationController(
           value: 1,
           duration: _animationDuration,
@@ -313,10 +312,10 @@ class AutoAnimateSliverListController<T> {
       });
   }
 
-  /// Do not use this method directly, use [updateItems]
+  /// Do not use this method directly
   void updateItems(List<T> updatedItems) => _items = updatedItems;
 
-  /// Do not use this method directly, use [updateItemsWithAnimation]
+  /// Do not use this method directly
   void updateItemsWithAnimation({
     required TickerProvider tickerProvider,
     required List<T> updatedItems,
@@ -387,11 +386,10 @@ class AutoAnimateSliverListController<T> {
         // Only animate if item actually moved and
         // not just shifted due to insertion
         if (oldIndex != null &&
-            oldIndex != newIndex &&
-            _enableMoveAnimation &&
-            oldPositions.length ==
-                newItemsLength // No new item inserted
-                ) {
+                oldIndex != newIndex &&
+                _enableMoveAnimation &&
+                oldPositions.length == newItemsLength // No new item inserted
+            ) {
           needsReorder = true;
 
           // Calculate the offset this item needs to move
@@ -442,9 +440,8 @@ class AutoAnimateSliverListController<T> {
   }
 
   void _cleanupRemovedItems(Set<String> newItemKeys) {
-    final keysToRemove = _itemStates.keys
-        .where((key) => !newItemKeys.contains(key))
-        .toList();
+    final keysToRemove =
+        _itemStates.keys.where((key) => !newItemKeys.contains(key)).toList();
     final keysToRemoveLength = keysToRemove.length;
     for (var i = 0; i < keysToRemoveLength; i++) {
       final key = keysToRemove[i];
@@ -493,5 +490,13 @@ class AutoAnimateSliverListController<T> {
     // Clear the map to prevent reuse of disposed controllers
     _itemStates.clear();
     _itemKeys.clear();
+    _itemStates.clear();
+    _itemKeys.clear();
+    _removingItems.clear();
+    _currentItems = List<T>.from(_items);
+    _isNewItemAddedAtTop = false;
+    _newItemHeight = 0.0;
+    _isAddingItem = false;
+    _isRemovingItem = false;
   }
 }

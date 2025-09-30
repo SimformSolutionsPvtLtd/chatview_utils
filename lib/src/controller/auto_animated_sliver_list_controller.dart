@@ -124,7 +124,10 @@ class AutoAnimateSliverListController<T> {
     _currentItems = newItems;
 
     final provider = _tickerProvider;
-    if (provider == null) return;
+    if (provider == null) {
+      Future.microtask(() => _isAddingItem = false);
+      return;
+    }
 
     // Create animation controller for new item
     final moveController = AnimationController(
@@ -311,16 +314,17 @@ class AutoAnimateSliverListController<T> {
       });
   }
 
-  /// Do not use this method directly, use [updateItems]
+  /// Do not use this method directly
   void updateItems(List<T> updatedItems) => _items = updatedItems;
 
-  /// Do not use this method directly, use [updateItemsWithAnimation]
+  /// Do not use this method directly
   void updateItemsWithAnimation({
     required TickerProvider tickerProvider,
     required List<T> updatedItems,
+    bool forceUpdate = false,
   }) {
     this._tickerProvider = tickerProvider;
-    if (_isAddingItem || _isRemovingItem) return;
+    if (!forceUpdate && (_isAddingItem || _isRemovingItem)) return;
 
     final newItems = List<T>.from(_items);
     final newItemKeys = <String>{};
@@ -450,7 +454,7 @@ class AutoAnimateSliverListController<T> {
   }
 
   void initialize({required TickerProvider tickerProvider}) {
-    this._tickerProvider ??= tickerProvider;
+    this._tickerProvider = tickerProvider;
 
     final currentItemsLength = _currentItems.length;
     for (var i = 0; i < currentItemsLength; i++) {
@@ -473,5 +477,29 @@ class AutoAnimateSliverListController<T> {
     for (var i = 0; i < valuesLength; i++) {
       values[i].moveController.dispose();
     }
+  }
+
+  /// Do not use this method directly
+  /// Disposes all AnimationControllers and their tickers without disposing the controller itself.
+  void disposeAnimations() {
+    final values = _itemStates.values.toList();
+    final valuesLength = values.length;
+    for (var i = 0; i < valuesLength; i++) {
+      final controller = values[i].moveController;
+      controller
+        ..stop()
+        ..dispose();
+    }
+    // Clear the map to prevent reuse of disposed controllers
+    _itemStates.clear();
+    _itemKeys.clear();
+    _removingItems.clear();
+    _items.clear();
+    _currentItems = List<T>.from(_items);
+    _isNewItemAddedAtTop = false;
+    _newItemHeight = 0.0;
+    _isAddingItem = false;
+    _isRemovingItem = false;
+    _tickerProvider = null;
   }
 }

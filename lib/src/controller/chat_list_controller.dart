@@ -148,7 +148,7 @@ base class ChatViewListController {
   /// making changes.
   void removeChat(String chatId) {
     if (!_chatListMap.containsKey(chatId) ||
-        !(_searchResultMap?.containsKey(chatId) ?? false)) {
+        !(_searchResultMap?.containsKey(chatId) ?? true)) {
       return;
     }
     _searchResultMap?.remove(chatId);

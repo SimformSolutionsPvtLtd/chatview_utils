@@ -28,10 +28,10 @@ class AutoAnimateSliverListController<T> {
     required AutoAnimateItemExtractor<T> itemKeyExtractor,
     Duration animationDuration = const Duration(milliseconds: 400),
     bool enableMoveAnimation = true,
-  })  : _enableMoveAnimation = enableMoveAnimation,
-        _items = items,
-        _itemKeyExtractor = itemKeyExtractor,
-        _animationDuration = animationDuration;
+  }) : _enableMoveAnimation = enableMoveAnimation,
+       _items = items,
+       _itemKeyExtractor = itemKeyExtractor,
+       _animationDuration = animationDuration;
 
   final AutoAnimateItemExtractor<T> _itemKeyExtractor;
   final Duration _animationDuration;
@@ -111,8 +111,8 @@ class AutoAnimateSliverListController<T> {
     if (_isNewItemAddedAtTop && _currentItems.isNotEmpty) {
       // Estimate new item height based on existing items
       final firstOldKey = _itemKeyExtractor(_currentItems[0]);
-      final renderBox =
-          _itemKeys[firstOldKey]?.currentContext?.findRenderObject();
+      final renderBox = _itemKeys[firstOldKey]?.currentContext
+          ?.findRenderObject();
       if (renderBox is RenderBox && renderBox.hasSize) {
         _newItemHeight = renderBox.size.height;
       } else {
@@ -124,7 +124,10 @@ class AutoAnimateSliverListController<T> {
     _currentItems = newItems;
 
     final provider = _tickerProvider;
-    if (provider == null) return;
+    if (provider == null) {
+      Future.microtask(() => _isAddingItem = false);
+      return;
+    }
 
     // Create animation controller for new item
     final moveController = AnimationController(
@@ -180,8 +183,8 @@ class AutoAnimateSliverListController<T> {
   /// Removes an item by its key with animation
   void removeItem(String key, {bool shouldAnimate = true}) {
     final item = _currentItems.cast<T?>().firstWhereOrNull(
-          (item) => item != null && _itemKeyExtractor(item) == key,
-        );
+      (item) => item != null && _itemKeyExtractor(item) == key,
+    );
     if (item == null) return;
 
     _onRemoveItem(item, shouldAnimate: shouldAnimate);
@@ -209,12 +212,10 @@ class AutoAnimateSliverListController<T> {
       // Remove immediately without animation
       _currentItems.removeAt(itemIndex);
       final currentItemsLength = _currentItems.length;
-      _cleanupRemovedItems(
-        {
-          for (var i = 0; i < currentItemsLength; i++)
-            if (_currentItems[i] case final item) _itemKeyExtractor(item),
-        },
-      );
+      _cleanupRemovedItems({
+        for (var i = 0; i < currentItemsLength; i++)
+          if (_currentItems[i] case final item) _itemKeyExtractor(item),
+      });
       _updateController.add(null);
       return;
     }
@@ -268,7 +269,8 @@ class AutoAnimateSliverListController<T> {
     required TickerProvider tickerProvider,
     AnimationController? moveController,
   }) {
-    final controller = moveController ??
+    final controller =
+        moveController ??
         AnimationController(
           value: 1,
           duration: _animationDuration,
@@ -318,9 +320,10 @@ class AutoAnimateSliverListController<T> {
   void updateItemsWithAnimation({
     required TickerProvider tickerProvider,
     required List<T> updatedItems,
+    required bool forceUpdate,
   }) {
     this._tickerProvider = tickerProvider;
-    if (_isAddingItem || _isRemovingItem) return;
+    if (!forceUpdate && (_isAddingItem || _isRemovingItem)) return;
 
     final newItems = List<T>.from(_items);
     final newItemKeys = <String>{};
@@ -384,10 +387,11 @@ class AutoAnimateSliverListController<T> {
         // Only animate if item actually moved and
         // not just shifted due to insertion
         if (oldIndex != null &&
-                oldIndex != newIndex &&
-                _enableMoveAnimation &&
-                oldPositions.length == newItemsLength // No new item inserted
-            ) {
+            oldIndex != newIndex &&
+            _enableMoveAnimation &&
+            oldPositions.length ==
+                newItemsLength // No new item inserted
+                ) {
           needsReorder = true;
 
           // Calculate the offset this item needs to move
@@ -438,8 +442,9 @@ class AutoAnimateSliverListController<T> {
   }
 
   void _cleanupRemovedItems(Set<String> newItemKeys) {
-    final keysToRemove =
-        _itemStates.keys.where((key) => !newItemKeys.contains(key)).toList();
+    final keysToRemove = _itemStates.keys
+        .where((key) => !newItemKeys.contains(key))
+        .toList();
     final keysToRemoveLength = keysToRemove.length;
     for (var i = 0; i < keysToRemoveLength; i++) {
       final key = keysToRemove[i];
@@ -473,5 +478,20 @@ class AutoAnimateSliverListController<T> {
     for (var i = 0; i < valuesLength; i++) {
       values[i].moveController.dispose();
     }
+  }
+
+  /// Do not use this method directly
+  /// Disposes all AnimationControllers and their tickers without disposing the controller itself.
+  void disposeAnimations() {
+    final values = _itemStates.values.toList();
+    final valuesLength = values.length;
+    for (var i = 0; i < valuesLength; i++) {
+      final controller = values[i].moveController;
+      controller.stop(); // Stop any running animation
+      controller.dispose();
+    }
+    // Clear the map to prevent reuse of disposed controllers
+    _itemStates.clear();
+    _itemKeys.clear();
   }
 }

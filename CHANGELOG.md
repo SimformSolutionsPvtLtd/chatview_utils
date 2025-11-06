@@ -5,7 +5,7 @@
 * **Feat**: [17](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/17) Added
   `loadMoreData()` method in `ChatController` to fetch older or new messages.
 * **Feat**: [19](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/19) Introduced
-  `ChatViewListController`to support `ChatViewList` widget for managing chat list operations like
+  `ChatListController`to support `ChatList` widget for managing chat list operations like
   add, remove and update chat with animated UI, search functionality, and pagination.
 
 ## 0.0.1

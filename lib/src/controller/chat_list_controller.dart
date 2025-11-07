@@ -2,20 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../models/data_models/chat_view_list_item.dart';
+import '../models/data_models/chat_list_item.dart';
 import '../values/enumeration.dart';
 import '../values/typedefs.dart';
 import 'auto_animated_sliver_list_controller.dart';
 
-base class ChatViewListController {
-  ChatViewListController({
-    required List<ChatViewListItem> initialChatList,
+base class ChatListController {
+  ChatListController({
+    required List<ChatListItem> initialChatList,
     required this.scrollController,
     bool disposeOtherResources = true,
     bool sortEnable = true,
     ChatSorter? chatSorter,
   }) : _disposeOtherResources = disposeOtherResources {
-    _animatedListController = AutoAnimateSliverListController<ChatViewListItem>(
+    _animatedListController = AutoAnimateSliverListController<ChatListItem>(
       items: initialChatList,
       itemKeyExtractor: (item) => item.id,
     );
@@ -25,7 +25,7 @@ base class ChatViewListController {
         final chatList = chatMap.values.toList();
         if (sortEnable) {
           chatList.sort(
-            chatSorter ?? ChatViewListSortBy.pinFirstByPinTime.sort,
+            chatSorter ?? ChatListSortBy.pinFirstByPinTime.sort,
           );
         }
         return chatList;
@@ -51,18 +51,19 @@ base class ChatViewListController {
     );
   }
 
-  late final AutoAnimateSliverListController<ChatViewListItem>
+  late final AutoAnimateSliverListController<ChatListItem>
       _animatedListController;
 
-  AutoAnimateSliverListController<ChatViewListItem>
-      get animatedListController => _animatedListController;
+  /// Internal use only. Do not use explicitly.
+  AutoAnimateSliverListController<ChatListItem> get animatedListController =>
+      _animatedListController;
 
   /// Stores and manages chat items by their unique IDs.
   /// A map is used for efficient lookup, update, and removal of chats
   /// by their unique id.
-  final _chatListMap = <String, ChatViewListItem>{};
+  final _chatListMap = <String, ChatListItem>{};
 
-  Map<String, ChatViewListItem>? _searchResultMap;
+  Map<String, ChatListItem>? _searchResultMap;
 
   /// Provides scroll controller for chat list.
   final ScrollController scrollController;
@@ -74,25 +75,24 @@ base class ChatViewListController {
   /// **Note**: If a search is active, this will return the full chat list,
   /// not the search results. And this list will be unsorted.
   /// So the order of in UI and from this will be different.
-  List<ChatViewListItem> get chatList => _chatListMap.values.toList();
+  List<ChatListItem> get chatList => _chatListMap.values.toList();
 
   /// Provides map of all chats in the chat list.
   ///
   /// **Note**: If a search is active, this will return the full chat map,
   /// not the search results. And this map will be unsorted.
-  Map<String, ChatViewListItem> get chatListMap => _chatListMap;
+  Map<String, ChatListItem> get chatListMap => _chatListMap;
 
   bool get isSearching => _searchResultMap != null;
 
   /// Stream controller to manage the chat list stream.
-  final StreamController<Map<String, ChatViewListItem>>
-      _chatListStreamController =
-      StreamController<Map<String, ChatViewListItem>>.broadcast();
+  final StreamController<Map<String, ChatListItem>> _chatListStreamController =
+      StreamController<Map<String, ChatListItem>>.broadcast();
 
-  late final Stream<List<ChatViewListItem>> chatListStream;
+  late final Stream<List<ChatListItem>> chatListStream;
 
   /// Adds a chat to the chat list.
-  void addChat(ChatViewListItem chat) {
+  void addChat(ChatListItem chat) {
     _chatListMap[chat.id] = chat;
     // Do not add chat to stream if search is active
     // as we will unable to identify whether to add as we don't
@@ -106,7 +106,7 @@ base class ChatViewListController {
   }
 
   /// Function for loading data while pagination.
-  void loadMoreChats(List<ChatViewListItem> chatList) {
+  void loadMoreChats(List<ChatListItem> chatList) {
     final chatListLength = chatList.length;
     _chatListMap.addAll(
       {
@@ -160,7 +160,7 @@ base class ChatViewListController {
   }
 
   /// Adds the given chat search results to the stream after the current frame.
-  void setSearchChats(List<ChatViewListItem> searchResults) {
+  void setSearchChats(List<ChatListItem> searchResults) {
     final searchResultLength = searchResults.length;
     _searchResultMap = {
       for (var i = 0; i < searchResultLength; i++)

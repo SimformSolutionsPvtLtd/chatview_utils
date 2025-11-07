@@ -6,9 +6,9 @@ import 'chat_user.dart';
 import 'message.dart';
 
 /// Model class representing a user or group in the chat list.
-class ChatViewListItem {
+class ChatListItem {
   /// Creates a user or group object for the chat list.
-  const ChatViewListItem({
+  const ChatListItem({
     required this.id,
     required this.name,
     this.chatRoomType = ChatRoomType.oneToOne,
@@ -51,7 +51,7 @@ class ChatViewListItem {
   /// Settings for the chat list view.
   final ChatSettings settings;
 
-  ChatViewListItem copyWith({
+  ChatListItem copyWith({
     Defaulted<String> id = const Omit(),
     Defaulted<String> name = const Omit(),
     Defaulted<ChatRoomType> chatRoomType = const Omit(),
@@ -62,7 +62,7 @@ class ChatViewListItem {
     Defaulted<String>? imageUrl = const Omit(),
     Defaulted<int>? unreadCount = const Omit(),
   }) {
-    return ChatViewListItem(
+    return ChatListItem(
       id: id is Omit ? this.id : id as String,
       name: name is Omit ? this.name : name as String,
       chatRoomType: chatRoomType is Omit

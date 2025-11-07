@@ -21,7 +21,7 @@
  */
 
 import '../extensions/extensions.dart';
-import '../models/data_models/chat_view_list_item.dart';
+import '../models/data_models/chat_list_item.dart';
 
 /// {@template chatview_utils.enumeration.MessageType}
 /// Defines the various message types in ChatView.
@@ -335,14 +335,14 @@ extension ChatRoomTypeExtension on ChatRoomType {
 }
 
 /// Enum for different chat list sorting options (for internal use only)
-enum ChatViewListSortBy {
+enum ChatListSortBy {
   /// No sorting applied.
   none,
 
   /// Pin chats first (sorted by pin time), then unpinned by message date/time
   pinFirstByPinTime;
 
-  int sort(ChatViewListItem chat1, ChatViewListItem chat2) {
+  int sort(ChatListItem chat1, ChatListItem chat2) {
     switch (this) {
       case none:
         return 0;

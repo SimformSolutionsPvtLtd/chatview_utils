@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../extensions/extensions.dart';
@@ -315,7 +316,14 @@ class AutoAnimateSliverListController<T> {
   }
 
   /// Do not use this method directly
-  void updateItems(List<T> updatedItems) => _items = updatedItems;
+  void updateItems(List<T> updatedItems) {
+    _items = updatedItems;
+    // Added ticket provider null check to avoid unnecessary updates
+    // during animations or when calling updateItemsWithAnimation
+    if (_tickerProvider == null && !listEquals(_items, _currentItems)) {
+      _currentItems = List.from(_items);
+    }
+  }
 
   /// Do not use this method directly
   void updateItemsWithAnimation({

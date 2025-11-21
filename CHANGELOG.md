@@ -1,4 +1,4 @@
-## 0.0.2
+## 3.0.0
 
 * **Feat**: [18](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/18) Added
   `updateMessage()` method in `ChatController` to update existing messages.

@@ -1,3 +1,7 @@
+## [Unreleased]
+
+* **Fix**: [26](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/26) Rename `updateAt` to `updatedAt` in `Message` model for consistency
+
 ## 3.0.0
 
 * **Feat**: [18](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/18) Added

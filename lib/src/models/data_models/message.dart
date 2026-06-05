@@ -36,11 +36,16 @@ class Message {
     this.replyMessage = const ReplyMessage(),
     this.messageType = MessageType.text,
     this.voiceMessageDuration,
-    this.updateAt,
+    DateTime? updatedAt,
+    @Deprecated(
+      'Use updatedAt instead.',
+    )
+    DateTime? updateAt,
     this.update,
     MessageStatus status = MessageStatus.pending,
     Reaction? reaction,
-  })  : reaction = reaction ?? Reaction(reactions: [], reactedUserIds: []),
+  })  : updatedAt = updatedAt ?? updateAt,
+        reaction = reaction ?? Reaction(reactions: [], reactedUserIds: []),
         _status = ValueNotifier(status),
         assert(
           defaultTargetPlatform.isAudioWaveformsSupported ||
@@ -72,7 +77,8 @@ class Message {
       status: MessageStatus.tryParse(json['status']?.toString()) ??
           MessageStatus.pending,
       update: updateData is Map<String, dynamic> ? updateData : null,
-      updateAt: DateTime.tryParse(json[_updateAt].toString()),
+      updatedAt: DateTime.tryParse(json[_updatedAt].toString()) ??
+          DateTime.tryParse(json[_updateAt].toString()),
     );
   }
 
@@ -80,6 +86,7 @@ class Message {
   static const String _reaction = 'reaction';
   static const String _voiceMessageDuration = 'voice_message_duration';
   static const String _updateAt = 'update_at';
+  static const String _updatedAt = 'updated_at';
   static const String _update = 'update';
 
   /// Unique identifier for the message.
@@ -106,7 +113,17 @@ class Message {
   /// {@macro chatview_utils.enumeration.MessageType}
   final MessageType messageType;
 
-  final DateTime? updateAt;
+  /// The date and time when the message was last updated.
+  final DateTime? updatedAt;
+
+  /// Deprecated. Use [updatedAt] instead.
+  ///
+  /// This getter is kept for backward compatibility and will be removed
+  /// in a future version.
+  @Deprecated(
+    'Use updatedAt instead.',
+  )
+  DateTime? get updateAt => updatedAt;
 
   final Map<String, dynamic>? update;
 
@@ -146,7 +163,8 @@ class Message {
       data[_replyMessage] = replyMessage.toJson();
       data[_reaction] = reaction.toJson();
       data[_voiceMessageDuration] = voiceMessageDuration?.inMicroseconds;
-      data[_updateAt] = updateAt?.toIso8601String();
+      data[_updatedAt] = updatedAt?.toIso8601String();
+      data[_updateAt] = updatedAt?.toIso8601String();
       data[_update] = update;
     } else {
       if (!replyMessage.isEmpty) data[_replyMessage] = replyMessage.toJson();
@@ -154,8 +172,9 @@ class Message {
       if (voiceMessageDuration case final duration?) {
         data[_voiceMessageDuration] = duration.inMicroseconds;
       }
-      if (updateAt case final updateAt?) {
-        data[_updateAt] = updateAt.toIso8601String();
+      if (updatedAt case final updatedAt?) {
+        data[_updatedAt] = updatedAt.toIso8601String();
+        data[_updateAt] = updatedAt.toIso8601String();
       }
       if (update?.isNotEmpty ?? false) data[_update] = update;
     }
@@ -173,10 +192,15 @@ class Message {
     MessageType? messageType,
     Duration? voiceMessageDuration,
     MessageStatus? status,
+    DateTime? updatedAt,
+    @Deprecated(
+      'Use updatedAt instead.',
+    )
     DateTime? updateAt,
-    Map<String, String>? update,
+    Map<String, dynamic>? update,
     bool forceNullValue = false,
   }) {
+    final resolvedUpdatedAt = updatedAt ?? updateAt;
     return Message(
       id: id ?? this.id,
       message: message ?? this.message,
@@ -188,7 +212,11 @@ class Message {
           : voiceMessageDuration ?? this.voiceMessageDuration,
       reaction: reaction ?? this.reaction,
       replyMessage: replyMessage ?? this.replyMessage,
-      updateAt: forceNullValue ? updateAt : updateAt ?? this.updateAt,
+      updatedAt: forceNullValue
+          ? resolvedUpdatedAt
+          : resolvedUpdatedAt ?? this.updatedAt,
+      // this.updateAt is stored in the local updatedAt variable
+      // so no need to pass this.updateAt
       update: forceNullValue ? update : update ?? this.update,
       status: status ?? this.status,
     );
@@ -212,7 +240,7 @@ class Message {
         other.voiceMessageDuration == voiceMessageDuration &&
         other.status == status &&
         mapEquals(other.update, update) &&
-        other.updateAt == updateAt;
+        other.updatedAt == updatedAt;
   }
 
   @override
@@ -227,6 +255,6 @@ class Message {
         voiceMessageDuration,
         status,
         update,
-        updateAt,
+        updatedAt,
       ]);
 }

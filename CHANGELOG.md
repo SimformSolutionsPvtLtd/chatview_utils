@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 * **Fix**: [26](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/26) Rename `updateAt` to `updatedAt` in `Message` model for consistency
+* **Docs**: [27](https://github.com/SimformSolutionsPvtLtd/chatview_utils/pull/27)Update `voiceMessageDuration` doc comment in `Message` and `ReplyMessage`
 
 ## 3.0.0
 

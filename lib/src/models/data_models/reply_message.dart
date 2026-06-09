@@ -59,7 +59,7 @@ class ReplyMessage {
   /// {@macro chatview_utils.enumeration.MessageType}
   final MessageType messageType;
 
-  /// Provides max duration for recorded voice message.
+  /// Duration of the voice message.
   final Duration? voiceMessageDuration;
 
   /// Id of message, it replies to.

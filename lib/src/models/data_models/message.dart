@@ -130,7 +130,7 @@ class Message {
   /// Status of the message.
   final ValueNotifier<MessageStatus> _status;
 
-  /// Provides max duration for recorded voice message.
+  /// Duration of the voice message.
   Duration? voiceMessageDuration;
 
   /// Provides message's current status.
